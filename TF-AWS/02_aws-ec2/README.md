@@ -4,7 +4,6 @@ This document explains **how Terraform is used to provision, validate, manage, a
 
 It also covers **Terraform configuration concepts, workflow commands, lifecycle, state management, variables, outputs, and project file structure**.
 
----
 
 ## 1. Terraform Configuration
 
@@ -74,8 +73,6 @@ resource "aws_instance" "sandbox_ec2" {
 * `ami` → Defines the operating system image
 * `instance_type` → Specifies compute capacity
 * `tags` → Helps with identification, billing, and automation
-
----
 
 ## 2. Terraform Workflow Commands
 
@@ -170,15 +167,11 @@ terraform destroy
 terraform destroy -auto-approve
 ```
 
----
-
 ## 3. Terraform Lifecycle Workflow
 
 ![Terraform\_Workflow](Terraform_Workflow.svg)
 
 This workflow demonstrates the **full lifecycle management** of an AWS EC2 instance using Terraform, including **validation for error-free configuration**.
-
----
 
 ## 4. Terraform Configuration Basics
 
@@ -191,8 +184,6 @@ This workflow demonstrates the **full lifecycle management** of an AWS EC2 insta
   * You define *what* you want, not *how* to create it
 
 Terraform also supports **JSON format**, though HCL is recommended for readability.
-
----
 
 ## 5. State Management
 
@@ -218,8 +209,6 @@ Remote state enables:
 * Team collaboration
 * State locking
 * Safer multi-user workflows
-
----
 
 ## 6. Terraform Variables
 
@@ -252,8 +241,6 @@ Values can be overridden using:
 * CLI flags
 * Environment variables
 
----
-
 ## 7. Terraform Outputs
 
 Outputs expose useful information after deployment.
@@ -271,7 +258,6 @@ output "aws_instance_public_ip" {
 * Pass values to other Terraform modules
 * Integrate with CI/CD pipelines
 
----
 
 ## 8. Terraform Project File & Directory Structure Explained
 
@@ -377,8 +363,6 @@ Terraform automatically loads **all `.tf` files**, filenames do not affect execu
 * Defines values Terraform displays after execution
 * Enables integration and automation
 
----
-
 ## 9. How Terraform Uses These Files Together
 
 ```text
@@ -397,7 +381,6 @@ Terraform automatically:
 * Compares desired state vs actual state
 * Applies only required changes
 
----
 
 ## 10. Summary
 
@@ -409,8 +392,6 @@ This Terraform example demonstrates:
 * Declarative infrastructure definitions
 * State management for tracking resources
 * Use of variables and outputs for flexibility and automation
-
----
 
 ## Final Cloud Engineering Perspective
 
