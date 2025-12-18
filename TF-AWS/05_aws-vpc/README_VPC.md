@@ -1,137 +1,207 @@
+# AWS VPC with Public & Private Subnets (Terraform) 🌐
 
-# AWS VPC with Public & Private Subnets (Terraform)
+![AWS](https://img.shields.io/badge/AWS-VPC-orange?logo=amazonaws)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-purple?logo=terraform)
+![Level](https://img.shields.io/badge/Level-Foundational-green)
 
-This project provisions a **basic AWS networking setup** using **Terraform**, including a VPC, public and private subnets, internet connectivity, and an EC2 instance deployed in the public subnet.
+This project provisions a **basic AWS networking setup** using **Terraform**, including a **VPC**, **public and private subnets**, **internet connectivity**, and an **EC2 instance deployed in the public subnet**.
 
-The configuration is designed for **learning, sandbox testing, and foundational cloud networking understanding**.
+It is designed for **learning, sandbox testing, and building a strong foundation in AWS networking concepts** using Infrastructure as Code (IaC).
 
+## Table of Contents
+
+1. [Architecture Overview](#architecture-overview)
+2. [High-Level Network Flow](#high-level-network-flow)
+3. [Resources Created](#resources-created)
+4. [Key Concepts Demonstrated](#key-concepts-demonstrated)
+5. [Important Notes](#important-notes)
+6. [Real-World Production Usage](#real-world-production-usage)
+7. [Final Insight](#final-insight)
+8. [References & Credits](#references--credits)
 
 ## Architecture Overview
 
-The infrastructure created by this Terraform code includes:
+This Terraform configuration creates the following AWS resources:
 
-- **VPC** with custom CIDR range
+- **Custom VPC** with a defined CIDR block
 - **Public Subnet** (internet-facing)
 - **Private Subnet** (isolated)
-- **Internet Gateway** attached to the VPC
-- **Public Route Table** routing traffic to the Internet Gateway
-- **EC2 instance** launched in the public subnet
+- **Internet Gateway (IGW)** attached to the VPC
+- **Public Route Table** routing traffic to the IGW
+- **EC2 instance** launched inside the public subnet
 
-### High-level diagram
+The goal is to clearly demonstrate **how traffic flows inside a VPC** and **why public and private subnets behave differently**.
 
-```
+## High-Level Network Flow
 
-       Internet
-          |
-     (0.0.0.0/0)
-          |
- [ Internet Gateway ]
-          |
-          |
-[ Public Route Table ]
-          |
-          |
-   [ Public Subnet ] ---- EC2 Instance
-          |
-  [ Private Subnet ] (no internet access)
-
+```text
+            Internet
+                |
+          (0.0.0.0/0)
+                |
+        [ Internet Gateway ]
+                |
+        [ Public Route Table ]
+                |
+        [ Public Subnet ] ---- EC2 Instance
+                |
+        [ Private Subnet ]
+        (No internet access)
 ````
+
+### Key Observations
+
+* Only the **public subnet** has a route to the Internet Gateway
+* The **private subnet is isolated by design**
+* Internet access is controlled purely by **routing**, not by subnet type
 
 ## Resources Created
 
-### 1. VPC
+### 3.1 Virtual Private Cloud (VPC)
 
-```hcl
-10.0.0.0/16
+```text
+CIDR: 10.0.0.0/16
 ```
 
-* Provides a private IP address range for all resources
-* Acts as the network boundary
+**Purpose:**
 
----
+* Defines the **network boundary**
+* Provides a private IP range for all resources
+* Isolated from other VPCs by default
 
-### 2. Subnets
+AWS Reference:
+[https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html)
+
+### 3.2 Subnets
 
 | Subnet Type    | CIDR Block    | Purpose                       |
 | -------------- | ------------- | ----------------------------- |
-| Public Subnet  | `10.0.2.0/24` | Internet-facing resources     |
-| Private Subnet | `10.0.1.0/24` | Internal / isolated resources |
+| Public Subnet  | `10.0.2.0/24` | Internet-facing workloads     |
+| Private Subnet | `10.0.1.0/24` | Internal / isolated workloads |
 
-* Each subnet resides within the same VPC
-* Subnets are logically isolated
+**Key Points:**
 
----
+* Each subnet belongs to **one Availability Zone**
+* Subnets are carved from the VPC CIDR block
+* Isolation is achieved via **route tables**
 
-### 3. Internet Gateway
+AWS Reference:
+[https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html](https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html)
 
-* Enables communication between the VPC and the internet
-* Required for public subnet internet access
+### 3.3 Internet Gateway (IGW)
 
----
+**Role:**
 
-### 4. Route Table
+* Enables communication between the VPC and the public internet
+* Required for inbound and outbound internet access
 
-Public Route Table contains:
+**Important:**
 
-```
+* IGW is attached to the **VPC**, not to individual subnets
+
+AWS Reference:
+[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html)
+
+### 3.4 Route Tables
+
+The **public route table** contains:
+
+```text
 0.0.0.0/0 → Internet Gateway
 ```
 
-* Associated **only** with the public subnet
-* Private subnet has no internet route
+**Behavior:**
 
----
+* Associated **only with the public subnet**
+* Enables internet access for resources in that subnet
+* Private subnet has **no default internet route**
 
-### 5. EC2 Instance
+AWS Reference:
+[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html)
 
-| Property      | Value                           |
-| ------------- | ------------------------------- |
-| AMI           | Amazon Linux 2                  |
-| Instance Type | `t2.micro`                      |
-| Subnet        | Public Subnet                   |
-| Public Access | Enabled (via IGW & route table) |
+### 3.5 EC2 Instance
 
-This instance can:
+| Property        | Value          |
+| --------------- | -------------- |
+| AMI             | Amazon Linux 2 |
+| Instance Type   | `t2.micro`     |
+| Subnet          | Public Subnet  |
+| Internet Access | Enabled        |
 
-* Access the internet
-* Be accessed from the internet (if security groups allow)
+**Capabilities:**
 
----
+* Can access the internet
+* Can be accessed from the internet (subject to Security Groups)
+
+AWS EC2 Reference:
+[https://docs.aws.amazon.com/ec2/](https://docs.aws.amazon.com/ec2/)
 
 ## Key Concepts Demonstrated
 
-* VPC isolation
+This project reinforces several **fundamental AWS networking concepts**:
+
+* VPC-level isolation
 * CIDR block planning
-* Public vs Private subnet design
-* Internet Gateway behavior
+* Public vs private subnet behavior
+* Internet Gateway usage
 * Route table associations
 * EC2 placement within a subnet
-
----
+* Infrastructure as Code with Terraform
 
 ## Important Notes
 
 * The **private subnet has no internet access**
-* The EC2 instance is intentionally placed in the **public subnet**
-* Security Groups are not explicitly defined here (AWS default is used)
-* This setup is **not production-ready** — it is for learning and sandbox use
+* EC2 is intentionally deployed in the **public subnet**
+* Security Groups are **not explicitly defined** (AWS default is used)
+* This setup is **for learning only**, not production-ready
 
----
+## Real-World Production Usage
 
-## Real-World Usage
+In real-world environments, this architecture is usually extended with:
 
-In production environments, this setup is typically extended with:
-
-* NAT Gateway for private subnet outbound access
-* Application Load Balancer
+* NAT Gateway (for private subnet outbound access)
+* Application Load Balancer (ALB)
 * Auto Scaling Groups
 * Multiple Availability Zones
-* Security Groups and NACL hardening
-* IAM roles for EC2
+* Hardened Security Groups & Network ACLs
+* IAM Roles for EC2
+* Centralized logging & monitoring
 
----
+AWS Well-Architected Framework:
+[https://aws.amazon.com/architecture/well-architected/](https://aws.amazon.com/architecture/well-architected/)
 
 ## Final Insight
 
-> **Understanding VPC fundamentals is the foundation of cloud engineering.
-> Once you understand this setup, everything else in AWS networking becomes easier.**
+> **Understanding VPC fundamentals is the foundation of cloud engineering.**
+> Once this architecture is clear, advanced AWS networking becomes intuitive.
+
+## References & Credits
+
+### Official AWS Documentation
+
+* Amazon VPC Overview
+  [https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html)
+* Subnets
+  [https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html](https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html)
+* Route Tables
+  [https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html)
+* Internet Gateway
+  [https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html)
+* Amazon EC2
+  [https://docs.aws.amazon.com/ec2/](https://docs.aws.amazon.com/ec2/)
+
+### Terraform Documentation
+
+* AWS Provider
+  [https://registry.terraform.io/providers/hashicorp/aws/latest/docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+* Terraform Language
+  [https://developer.hashicorp.com/terraform/language](https://developer.hashicorp.com/terraform/language)
+
+### Credits
+
+* Architecture concepts based on **AWS Official Documentation**
+* Terraform examples aligned with **HashiCorp best practices**
+* AWS®, Amazon VPC®, and EC2® are trademarks of **Amazon Web Services, Inc.**
+
+**License**
+This repository is intended for **educational and learning purposes**.
