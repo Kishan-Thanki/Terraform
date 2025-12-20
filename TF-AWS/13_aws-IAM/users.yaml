@@ -1,0 +1,9 @@
+users:
+  - username: platform-admin
+    policies: [AmazonEC2FullAccess, AmazonS3FullAccess]
+
+  - username: storage-readonly
+    policies: [AmazonS3ReadOnlyAccess]
+
+  - username: ec2-readonly
+    policies: [AmazonEC2ReadOnlyAccess]
